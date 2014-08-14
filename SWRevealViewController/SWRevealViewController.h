@@ -161,15 +161,15 @@ typedef enum
 - (id)initWithRearViewController:(UIViewController *)rearViewController frontViewController:(UIViewController *)frontViewController;
 
 // Rear view controller, can be nil if not used
-@property (nonatomic) UIViewController *rearViewController;
+@property (nonatomic, assign) UIViewController *rearViewController;
 - (void)setRearViewController:(UIViewController *)rearViewController animated:(BOOL)animated;
 
 // Optional right view controller, can be nil if not used
-@property (nonatomic) UIViewController *rightViewController;
+@property (nonatomic, assign) UIViewController *rightViewController;
 - (void)setRightViewController:(UIViewController *)rightViewController animated:(BOOL)animated;
 
 // Front view controller, can be nil on initialization but must be supplied by the time the view is loaded
-@property (nonatomic) UIViewController *frontViewController;
+@property (nonatomic, assign) UIViewController *frontViewController;
 - (void)setFrontViewController:(UIViewController *)frontViewController animated:(BOOL)animated;
 
 // Sets the frontViewController using a default set of chained animations consisting on moving the
