@@ -174,8 +174,11 @@ static CGFloat scaledValue( CGFloat v1, CGFloat min2, CGFloat max2, CGFloat min1
     CALayer *frontViewLayer = _frontView.layer;
     frontViewLayer.shadowColor = [UIColor blackColor].CGColor;
     frontViewLayer.shadowOpacity = _c.frontViewShadowOpacity;
-    frontViewLayer.shadowOffset = _c.frontViewShadowOffset;
-    frontViewLayer.shadowRadius = _c.frontViewShadowRadius;
+	frontViewLayer.shadowOffset = _c.frontViewShadowOffset;
+	if (_c.revealViewLayout == RevealViewLayoutRearAbove)
+		frontViewLayer.shadowRadius = 0.0f;
+	else
+		frontViewLayer.shadowRadius = _c.frontViewShadowRadius;
 }
 
 
@@ -217,7 +220,10 @@ static CGFloat scaledValue( CGFloat v1, CGFloat min2, CGFloat max2, CGFloat min1
     {
         _rearView = [[UIView alloc] initWithFrame:self.bounds];
         _rearView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-        [self insertSubview:_rearView belowSubview:_frontView];
+//		if (_c.revealViewLayout == RevealViewLayoutRearAbove)
+//			[self insertSubview:_rearView aboveSubview:_frontView];
+//		else
+			[self insertSubview:_rearView belowSubview:_frontView];
     }
     
     CGFloat xLocation = [self frontLocationForPosition:_c.frontViewPosition];
@@ -232,7 +238,10 @@ static CGFloat scaledValue( CGFloat v1, CGFloat min2, CGFloat max2, CGFloat min1
     {
         _rightView = [[UIView alloc] initWithFrame:self.bounds];
         _rightView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-        [self insertSubview:_rightView belowSubview:_frontView];
+//		if (_c.revealViewLayout == RevealViewLayoutRearAbove)
+//			[self insertSubview:_rightView aboveSubview:_frontView];
+//		else
+			[self insertSubview:_rightView belowSubview:_frontView];
     }
     
     CGFloat xLocation = [self frontLocationForPosition:_c.frontViewPosition];
@@ -284,10 +293,17 @@ static CGFloat scaledValue( CGFloat v1, CGFloat min2, CGFloat max2, CGFloat min1
     CGFloat rearRevealWidth = _c.rearViewRevealWidth;
     if ( rearRevealWidth < 0) rearRevealWidth = bounds.size.width + _c.rearViewRevealWidth;
     
-    CGFloat rearXLocation = scaledValue(xLocation, -_c.rearViewRevealDisplacement, 0, 0, rearRevealWidth);
-    
-    CGFloat rearWidth = rearRevealWidth + _c.rearViewRevealOverdraw;
-    _rearView.frame = CGRectMake(rearXLocation, 0.0, rearWidth, bounds.size.height);
+	if (_c.revealViewLayout == RevealViewLayoutRearBelow) {
+		CGFloat rearXLocation = scaledValue(xLocation, -_c.rearViewRevealDisplacement, 0, 0, rearRevealWidth);
+		
+		CGFloat rearWidth = rearRevealWidth + _c.rearViewRevealOverdraw;
+		_rearView.frame = CGRectMake(rearXLocation, 0.0, rearWidth, bounds.size.height);
+	} else {
+		CGFloat rearXLocation = scaledValue(xLocation, -_c.rearViewRevealDisplacement - rearRevealWidth, 0, 0, rearRevealWidth);
+		
+		CGFloat rearWidth = rearRevealWidth + _c.rearViewRevealOverdraw;
+		_rearView.frame = CGRectMake(rearXLocation, 0.0, rearWidth, bounds.size.height);
+	}
     
     CGFloat rightRevealWidth = _c.rightViewRevealWidth;
     if ( rightRevealWidth < 0) rightRevealWidth = bounds.size.width + _c.rightViewRevealWidth;
@@ -525,6 +541,8 @@ static CGFloat scaledValue( CGFloat v1, CGFloat min2, CGFloat max2, CGFloat min1
     SWContextTransitionObject *_rearTransitioningController;
     SWContextTransitionObject *_frontTransitioningController;
     SWContextTransitionObject *_rightTransitioningController;
+	
+	RevealViewLayout _revealViewLayout;
 }
 @end
 
@@ -573,6 +591,8 @@ const int FrontViewPositionNone = 0xff;
 
 - (void)_initDefaultProperties
 {
+//	_revealViewLayout = RevealViewLayoutRearAbove;
+	_revealViewLayout = RevealViewLayoutRearBelow;
     _frontViewPosition = FrontViewPositionLeft;
     _rearViewPosition = FrontViewPositionLeft;
     _rightViewPosition = FrontViewPositionLeft;

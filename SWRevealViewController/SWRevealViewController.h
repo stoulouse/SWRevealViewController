@@ -154,6 +154,11 @@ typedef enum
     
 } FrontViewPosition;
 
+typedef enum
+{
+	RevealViewLayoutRearBelow,
+	RevealViewLayoutRearAbove,
+} RevealViewLayout;
 
 @interface SWRevealViewController : UIViewController
 
@@ -179,6 +184,8 @@ typedef enum
 // Front view position, use this to set a particular position state on the controller
 // On initialization it is set to FrontViewPositionLeft
 @property (nonatomic) FrontViewPosition frontViewPosition;
+
+@property (nonatomic) RevealViewLayout revealViewLayout;
 
 // Chained animation of the frontViewController position. You can call it several times in a row to achieve
 // any set of animations you wish. Animations will be chained and performed one after the other.
