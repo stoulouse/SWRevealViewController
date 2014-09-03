@@ -591,8 +591,8 @@ const int FrontViewPositionNone = 0xff;
 
 - (void)_initDefaultProperties
 {
-//	_revealViewLayout = RevealViewLayoutRearAbove;
-	_revealViewLayout = RevealViewLayoutRearBelow;
+	_revealViewLayout = RevealViewLayoutRearAbove;
+//	_revealViewLayout = RevealViewLayoutRearBelow;
     _frontViewPosition = FrontViewPositionLeft;
     _rearViewPosition = FrontViewPositionLeft;
     _rightViewPosition = FrontViewPositionLeft;
