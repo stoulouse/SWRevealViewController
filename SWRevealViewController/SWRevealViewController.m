@@ -171,14 +171,21 @@ static CGFloat scaledValue( CGFloat v1, CGFloat min2, CGFloat max2, CGFloat min1
 
 - (void)reloadShadow
 {
-    CALayer *frontViewLayer = _frontView.layer;
-    frontViewLayer.shadowColor = [UIColor blackColor].CGColor;
-    frontViewLayer.shadowOpacity = _c.frontViewShadowOpacity;
-	frontViewLayer.shadowOffset = _c.frontViewShadowOffset;
-	if (_c.revealViewLayout == RevealViewLayoutRearAbove)
-		frontViewLayer.shadowRadius = 0.0f;
-	else
+	if (_c.revealViewLayout == RevealViewLayoutRearAbove) {
+		CALayer *rearViewLayer = _rearView.layer;
+		rearViewLayer.shadowColor = [UIColor blackColor].CGColor;
+		rearViewLayer.shadowOpacity = _c.frontViewShadowOpacity;
+		rearViewLayer.shadowOffset = _c.frontViewShadowOffset;
+
+		rearViewLayer.shadowRadius = _c.frontViewShadowRadius;
+	} else {
+		CALayer *frontViewLayer = _frontView.layer;
+		frontViewLayer.shadowColor = [UIColor blackColor].CGColor;
+		frontViewLayer.shadowOpacity = _c.frontViewShadowOpacity;
+		frontViewLayer.shadowOffset = _c.frontViewShadowOffset;
+
 		frontViewLayer.shadowRadius = _c.frontViewShadowRadius;
+	}
 }
 
 
@@ -206,11 +213,18 @@ static CGFloat scaledValue( CGFloat v1, CGFloat min2, CGFloat max2, CGFloat min1
     
     [self _layoutRearViewsForLocation:xLocation];
     
-    CGRect frame = CGRectMake(xLocation, 0.0f, bounds.size.width, bounds.size.height);
-    _frontView.frame = [self hierarchycalFrameAdjustment:frame];
-    
-    UIBezierPath *shadowPath = [UIBezierPath bezierPathWithRect:_frontView.bounds];
-    _frontView.layer.shadowPath = shadowPath.CGPath;
+	if (_c.revealViewLayout == RevealViewLayoutRearBelow) {
+		CGRect frame = CGRectMake(xLocation, 0.0f, bounds.size.width, bounds.size.height);
+		_frontView.frame = [self hierarchycalFrameAdjustment:frame];
+	}
+	
+	if (_c.revealViewLayout == RevealViewLayoutRearAbove) {
+		UIBezierPath *shadowPath = [UIBezierPath bezierPathWithRect:_rearView.bounds];
+		_rearView.layer.shadowPath = shadowPath.CGPath;
+	} else {
+		UIBezierPath *shadowPath = [UIBezierPath bezierPathWithRect:_frontView.bounds];
+		_frontView.layer.shadowPath = shadowPath.CGPath;
+	}
 }
 
 
@@ -220,9 +234,9 @@ static CGFloat scaledValue( CGFloat v1, CGFloat min2, CGFloat max2, CGFloat min1
     {
         _rearView = [[UIView alloc] initWithFrame:self.bounds];
         _rearView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-//		if (_c.revealViewLayout == RevealViewLayoutRearAbove)
-//			[self insertSubview:_rearView aboveSubview:_frontView];
-//		else
+		if (_c.revealViewLayout == RevealViewLayoutRearAbove)
+			[self insertSubview:_rearView aboveSubview:_frontView];
+		else
 			[self insertSubview:_rearView belowSubview:_frontView];
     }
     
@@ -238,9 +252,9 @@ static CGFloat scaledValue( CGFloat v1, CGFloat min2, CGFloat max2, CGFloat min1
     {
         _rightView = [[UIView alloc] initWithFrame:self.bounds];
         _rightView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-//		if (_c.revealViewLayout == RevealViewLayoutRearAbove)
-//			[self insertSubview:_rightView aboveSubview:_frontView];
-//		else
+		if (_c.revealViewLayout == RevealViewLayoutRearAbove)
+			[self insertSubview:_rightView aboveSubview:_frontView];
+		else
 			[self insertSubview:_rightView belowSubview:_frontView];
     }
     
@@ -278,8 +292,10 @@ static CGFloat scaledValue( CGFloat v1, CGFloat min2, CGFloat max2, CGFloat min1
     xLocation = [self _adjustedDragLocationForLocation:xLocation];
     [self _layoutRearViewsForLocation:xLocation];
     
-    CGRect frame = CGRectMake(xLocation, 0.0f, bounds.size.width, bounds.size.height);
-    _frontView.frame = [self hierarchycalFrameAdjustment:frame];
+	if (_c.revealViewLayout == RevealViewLayoutRearBelow) {
+		CGRect frame = CGRectMake(xLocation, 0.0f, bounds.size.width, bounds.size.height);
+		_frontView.frame = [self hierarchycalFrameAdjustment:frame];
+	}
 }
 
 
@@ -596,10 +612,10 @@ const int FrontViewPositionNone = 0xff;
     _frontViewPosition = FrontViewPositionLeft;
     _rearViewPosition = FrontViewPositionLeft;
     _rightViewPosition = FrontViewPositionLeft;
-    _rearViewRevealWidth = 260.0f;
+    _rearViewRevealWidth = 200.0f;
     _rearViewRevealOverdraw = 60.0f;
     _rearViewRevealDisplacement = 40.0f;
-    _rightViewRevealWidth = 260.0f;
+    _rightViewRevealWidth = 200.0f;
     _rightViewRevealOverdraw = 60.0f;
     _rightViewRevealDisplacement = 40.0f;
     _bounceBackOnOverdraw = YES;
@@ -966,7 +982,7 @@ const int FrontViewPositionNone = 0xff;
 
 - (void)_getDragLocation:(CGFloat*)xLocation progress:(CGFloat*)progress
 {
-    UIView *frontView = _contentView.frontView;
+	UIView *frontView = self.revealViewLayout == RevealViewLayoutRearAbove ? _contentView.rearView : _contentView.frontView;
     *xLocation = frontView.frame.origin.x;
 
     int symetry = *xLocation<0 ? -1 : 1;
